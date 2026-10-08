@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WallCycle — seus wallpapers, sempre novos</title>
+<meta name="description" content="App Android gratuito que transforma suas pastas de imagens em papel de parede: troca automática, aleatória, toque duplo e efeitos.">
+<meta property="og:title" content="WallCycle">
+<meta property="og:description" content="Suas pastas de imagens viram papel de parede que muda sozinho.">
+<meta name="theme-color" content="#0d1117">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 108 108'%3E%3Crect width='108' height='108' rx='28' fill='%232B2833'/%3E%3Cpath fill='%237F67BE' d='M40 30h30a6 6 0 0 1 6 6v34a6 6 0 0 1-6 6H40a6 6 0 0 1-6-6V36a6 6 0 0 1 6-6z'/%3E%3Cpath fill='%23CFBCFF' d='M36 36h30a6 6 0 0 1 6 6v34a6 6 0 0 1-6 6H36a6 6 0 0 1-6-6V42a6 6 0 0 1 6-6z'/%3E%3Cpath fill='%23381E72' d='M30 72l12-14 8 9 6-6 16 15a6 6 0 0 1-6 6H36a6 6 0 0 1-6-6z'/%3E%3Ccircle fill='%23381E72' cx='58' cy='48' r='5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --accent: #8fe9da;
+    --accent-ink: #06231f;
+    --text: #f7f7fa;
+    --dim: rgba(247,247,250,.68);
+    --glass: rgba(255,255,255,.08);
+    --glass-strong: rgba(255,255,255,.14);
+    --edge: rgba(255,255,255,.18);
+    --bg: #0b0d14;
+    --radius: 28px;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    color: var(--text);
+    background: var(--bg);
+    line-height: 1.55;
+    overflow-x: hidden;
+  }
+  /* "Wallpaper" atrás da página: manchas de cor desfocadas */
+  .backdrop { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: radial-gradient(120% 80% at 50% 0%, #1a2140 0%, var(--bg) 60%); }
+  .blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .55; }
+  .b1 { width: 520px; height: 520px; background: #2a7f74; top: -120px; left: -140px; animation: drift 22s ease-in-out infinite alternate; }
+  .b2 { width: 460px; height: 460px; background: #6a3fb3; top: 30%; right: -160px; animation: drift 26s ease-in-out infinite alternate-reverse; }
+  .b3 { width: 380px; height: 380px; background: #b3452f; bottom: -140px; left: 20%; opacity: .35; animation: drift 30s ease-in-out infinite alternate; }
+  @keyframes drift { to { transform: translate(60px, 40px) scale(1.1); } }
+  @media (prefers-reduced-motion: reduce) { .blob { animation: none; } }
+
+  .wrap { width: min(1120px, 100% - 32px); margin-inline: auto; }
+  h1, h2, h3 { font-family: Sora, Inter, sans-serif; line-height: 1.12; letter-spacing: -.02em; }
+  a { color: inherit; }
+
+  .glass {
+    background: linear-gradient(180deg, var(--glass-strong), var(--glass));
+    border: 1px solid var(--edge);
+    border-radius: var(--radius);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+  }
+
+  /* Navegação */
+  nav { position: sticky; top: 12px; z-index: 10; margin-top: 12px; }
+  nav .bar { display: flex; align-items: center; justify-content: space-between; padding: 10px 10px 10px 18px; border-radius: 999px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: Sora, Inter, sans-serif; font-weight: 700; text-decoration: none; }
+  .brand svg { width: 30px; height: 30px; }
+  .links { display: flex; gap: 6px; align-items: center; }
+  .links a.l { text-decoration: none; color: var(--dim); padding: 8px 14px; border-radius: 999px; font-size: 15px; }
+  .links a.l:hover { color: var(--text); background: rgba(255,255,255,.08); }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 10px; justify-content: center;
+    font: 600 16px Inter, sans-serif; text-decoration: none;
+    padding: 14px 24px; border-radius: 999px; border: 0; cursor: pointer;
+    background: var(--accent); color: var(--accent-ink);
+    transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: 0 8px 30px rgba(143,233,218,.25);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(143,233,218,.35); }
+  .btn.small { padding: 10px 18px; font-size: 15px; }
+  .btn.ghost { background: rgba(255,255,255,.1); color: var(--text); border: 1px solid var(--edge); box-shadow: none; }
+  .btn svg { width: 20px; height: 20px; }
+
+  /* Hero */
+  .hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 48px; align-items: center; padding: 72px 0 48px; }
+  .eyebrow { display: inline-block; font: 600 13px Inter; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 18px; }
+  .hero h1 { font-size: clamp(40px, 6vw, 68px); font-weight: 700; }
+  .hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--accent), #c8b6ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p.lead { font-size: 19px; color: var(--dim); margin: 22px 0 32px; max-width: 520px; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .meta { margin-top: 18px; font-size: 14px; color: var(--dim); }
+
+  /* Celular */
+  .phone-stage { display: flex; justify-content: center; }
+  .phone { text-align: left;
+    width: 300px; aspect-ratio: 9 / 19.5; border-radius: 44px; padding: 10px;
+    background: #050608; border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 40px 100px rgba(0,0,0,.6), 0 0 0 6px rgba(255,255,255,.03);
+    transform: rotate(-3deg);
+  }
+  .screen {
+    position: relative; height: 100%; border-radius: 36px; overflow: hidden;
+    background: linear-gradient(160deg, #2b6a8f 0%, #3d3a7a 45%, #a0533d 100%);
+  }
+  .screen::before { /* wallpaper desfocado + véu */
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.6));
+    backdrop-filter: blur(6px);
+  }
+  .ui { position: relative; padding: 34px 14px 0; height: 100%; display: flex; flex-direction: column; gap: 10px; }
+  .ui .top { display: flex; justify-content: space-between; align-items: flex-end; }
+  .ui .eb { font: 600 8px Inter; letter-spacing: .14em; color: var(--accent); }
+  .ui .t { font: 600 22px Sora, Inter, sans-serif; }
+  .plus { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font-size: 20px; background: rgba(255,255,255,.18); border: 1px solid var(--edge); }
+  .g { background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.07)); border: 1px solid rgba(255,255,255,.22); border-radius: 18px; }
+  .now { display: flex; gap: 10px; padding: 8px; align-items: center; }
+  .now .th { width: 42px; aspect-ratio: 9/16; border-radius: 10px; }
+  .now small { font: 600 7px Inter; letter-spacing: .12em; color: var(--accent); display: block; }
+  .now b { font: 600 13px Sora, Inter, sans-serif; display: block; }
+  .now .chip { display: inline-block; margin-top: 6px; font-size: 9px; padding: 4px 10px; border-radius: 99px; background: rgba(255,255,255,.2); }
+  .coll { padding: 6px; }
+  .mosaic { display: grid; grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; gap: 4px; height: 92px; position: relative; }
+  .mosaic i { border-radius: 12px; display: block; }
+  .mosaic i:first-child { grid-row: span 2; }
+  .badge { position: absolute; font: 600 8px Inter; padding: 3px 8px; border-radius: 99px; }
+  .badge.on { top: 6px; left: 6px; background: var(--accent); color: var(--accent-ink); }
+  .badge.n { bottom: 6px; right: 6px; background: rgba(0,0,0,.5); }
+  .coll b { display: block; font: 600 12px Sora, Inter, sans-serif; padding: 6px 6px 0; }
+  .coll span { display: block; font-size: 9px; color: var(--dim); padding: 0 6px 4px; }
+  .navpill { margin-top: auto; margin-bottom: 14px; align-self: center; display: flex; gap: 4px; padding: 4px; border-radius: 99px; }
+  .navpill span { width: 30px; height: 26px; border-radius: 99px; display: grid; place-items: center; font-size: 11px; }
+  .navpill span.on { width: auto; padding: 0 10px; background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 9px; }
+
+  /* imagens "fotográficas" feitas em CSS */
+  .w1 { background: linear-gradient(180deg, #8ec5ff 0%, #c9e3ff 45%, #3e5f8a 46%, #1f3352 100%); }
+  .w2 { background: radial-gradient(circle at 40% 45%, #ffd6a0 0 8%, #e86a3b 20%, #5b2a6e 55%, #1c1033 100%); }
+  .w3 { background: linear-gradient(170deg, #1f4d3a 0%, #3f8a5c 40%, #a7d17a 70%, #2e5b3a 100%); }
+  .w4 { background: linear-gradient(180deg, #2c2f4a, #6d5a8a 50%, #e0a37a); }
+  .w5 { background: linear-gradient(200deg, #0f2027, #2c5364 60%, #6fb1c4); }
+  .w6 { background: linear-gradient(160deg, #3a1c71, #d76d77 60%, #ffaf7b); }
+
+  /* Seções */
+  section { padding: 72px 0; }
+  .head { text-align: center; max-width: 640px; margin: 0 auto 44px; }
+  .head h2 { font-size: clamp(30px, 4vw, 44px); }
+  .head p { color: var(--dim); margin-top: 14px; font-size: 17px; }
+
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .feature { padding: 26px; }
+  .ico { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: rgba(143,233,218,.16); color: var(--accent); margin-bottom: 18px; }
+  .ico svg { width: 24px; height: 24px; }
+  .feature h3 { font-size: 19px; margin-bottom: 8px; }
+  .feature p { color: var(--dim); font-size: 15px; }
+
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; counter-reset: s; }
+  .step { padding: 28px; position: relative; }
+  .step::before { counter-increment: s; content: counter(s); font: 700 44px Sora, Inter, sans-serif; color: rgba(143,233,218,.35); display: block; margin-bottom: 8px; }
+  .step h3 { font-size: 19px; margin-bottom: 6px; }
+  .step p { color: var(--dim); font-size: 15px; }
+
+  .gesture { display: grid; grid-template-columns: auto 1fr; gap: 36px; align-items: center; padding: 40px; }
+  .tap { width: 140px; height: 140px; border-radius: 50%; position: relative; display: grid; place-items: center; background: rgba(255,255,255,.06); border: 1px solid var(--edge); }
+  .tap::before, .tap::after { content: ""; position: absolute; inset: 30%; border-radius: 50%; border: 2px solid var(--accent); animation: ripple 1.8s ease-out infinite; }
+  .tap::after { animation-delay: .25s; }
+  .tap svg { width: 44px; height: 44px; color: var(--accent); }
+  @keyframes ripple { from { transform: scale(.4); opacity: 1; } to { transform: scale(1.6); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .tap::before, .tap::after { animation: none; } }
+  .gesture h2 { font-size: clamp(26px, 3.4vw, 36px); margin-bottom: 12px; }
+  .gesture p { color: var(--dim); }
+
+  .faq { max-width: 760px; margin: 0 auto; display: grid; gap: 12px; }
+  details { padding: 20px 24px; border-radius: 22px; }
+  summary { cursor: pointer; font-weight: 600; font-size: 17px; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+  summary::after { content: "+"; color: var(--accent); font-size: 22px; line-height: 1; }
+  details[open] summary::after { content: "–"; }
+  details p { color: var(--dim); margin-top: 10px; }
+
+  .final { text-align: center; padding: 56px 24px; }
+  .final h2 { font-size: clamp(30px, 4vw, 44px); margin-bottom: 14px; }
+  .final p { color: var(--dim); margin-bottom: 28px; }
+
+  footer { padding: 36px 0 48px; color: var(--dim); font-size: 14px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; text-align: center; padding-top: 48px; }
+    .hero p.lead { margin-inline: auto; }
+    .cta { justify-content: center; }
+    .features, .steps { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 620px) {
+    .links a.l { display: none; }
+    .features, .steps { grid-template-columns: 1fr; }
+    .gesture { grid-template-columns: 1fr; text-align: center; justify-items: center; padding: 28px; }
+    .phone { width: 260px; }
+    section { padding: 56px 0; }
+  }
+</style>
+</head>
+<body>
+<div class="backdrop" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+
+<div class="wrap">
+  <nav>
+    <div class="bar glass">
+      <a class="brand" href="#">
+        <svg viewBox="0 0 108 108" aria-hidden="true"><rect width="108" height="108" rx="28" fill="#2B2833"/><path fill="#7F67BE" d="M40 30h30a6 6 0 0 1 6 6v34a6 6 0 0 1-6 6H40a6 6 0 0 1-6-6V36a6 6 0 0 1 6-6z"/><path fill="#CFBCFF" d="M36 36h30a6 6 0 0 1 6 6v34a6 6 0 0 1-6 6H36a6 6 0 0 1-6-6V42a6 6 0 0 1 6-6z"/><path fill="#381E72" d="M30 72l12-14 8 9 6-6 16 15a6 6 0 0 1-6 6H36a6 6 0 0 1-6-6z"/><circle fill="#381E72" cx="58" cy="48" r="5"/></svg>
+        WallCycle
+      </a>
+      <div class="links">
+        <a class="l" href="#recursos">Recursos</a>
+        <a class="l" href="#como">Como funciona</a>
+        <a class="l" href="#faq">Dúvidas</a>
+        <a class="btn small" href="https://github.com/jesieldotdev/WallCycle/releases/latest/download/WallCycle.apk">Baixar</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div>
+      <span class="eyebrow">App Android · Grátis</span>
+      <h1>Suas pastas de fotos viram <em>wallpapers que mudam sozinhos</em>.</h1>
+      <p class="lead">Escolha uma pasta e o WallCycle troca o papel de parede no tempo que você quiser, em ordem aleatória ou com dois toques na tela inicial.</p>
+      <div class="cta">
+        <a class="btn" href="https://github.com/jesieldotdev/WallCycle/releases/latest/download/WallCycle.apk">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+          Baixar APK
+        </a>
+        <a class="btn ghost" href="#recursos">Ver recursos</a>
+      </div>
+      <p class="meta">Android 8.0 ou superior · Sem anúncios · Sem coleta de dados</p>
+    </div>
+
+    <div class="phone-stage" aria-hidden="true">
+      <div class="phone">
+        <div class="screen">
+          <div class="ui">
+            <div class="top">
+              <div><div class="eb">WALLCYCLE</div><div class="t">Coleções</div></div>
+              <div class="plus">+</div>
+            </div>
+            <div class="g now">
+              <i class="th w2"></i>
+              <div><small>EM USO AGORA</small><b>Paisagens</b><span class="chip">▶︎ Próximo</span></div>
+            </div>
+            <div class="g coll">
+              <div class="mosaic"><i class="w1"></i><i class="w3"></i><i class="w5"></i><span class="badge on">Ativa</span><span class="badge n">+42</span></div>
+              <b>Paisagens</b><span>Pasta · 45 imagens</span>
+            </div>
+            <div class="g coll">
+              <div class="mosaic"><i class="w6"></i><i class="w4"></i><i class="w2"></i><span class="badge n">+18</span></div>
+              <b>Pôr do sol</b><span>Seleção · 21 imagens</span>
+            </div>
+            <div class="g navpill"><span class="on">▣ Coleções</span><span>↻</span><span>✦</span><span>⚙</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section id="recursos">
+    <div class="head">
+      <h2>Tudo o que precisa para nunca enjoar do fundo de tela</h2>
+      <p>Simples de configurar e econômico na bateria.</p>
+    </div>
+    <div class="features">
+      <article class="glass feature">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+        <h3>Pastas e coleções</h3>
+        <p>Use uma pasta inteira (as fotos novas entram sozinhas) ou monte coleções escolhendo imagens.</p>
+      </article>
+      <article class="glass feature">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
+        <h3>Troca automática</h3>
+        <p>A cada 15 minutos, 1 hora, 6 horas ou 1 dia. Você escolhe o ritmo.</p>
+      </article>
+      <article class="glass feature">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/></svg></div>
+        <h3>Aleatório ou em ordem</h3>
+        <p>No modo aleatório, as imagens que você viu há pouco são evitadas para não repetir.</p>
+      </article>
+      <article class="glass feature">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V6a2 2 0 1 1 4 0v5"/><path d="M13 10a2 2 0 1 1 4 0v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3.3 15a1.7 1.7 0 0 1 2.7-2l1 1V8a2 2 0 1 1 4 0"/></svg></div>
+        <h3>Gestos</h3>
+        <p>Dois toques num espaço vazio da tela inicial e pronto: wallpaper novo. Ou troque a cada desbloqueio.</p>
+      </article>
+      <article class="glass feature">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3 1.9 5.8L20 10l-5 3.8L16.5 20 12 16.5 7.5 20 9 13.8 4 10l6.1-1.2z"/></svg></div>
+        <h3>Efeitos</h3>
+        <p>Desfoque, escurecer e preto e branco para deixar os ícones sempre legíveis.</p>
+      </article>
+      <article class="glass feature">
+        <div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/></svg></div>
+        <h3>Início, bloqueio ou ambas</h3>
+        <p>Aplique só na tela inicial, só na de bloqueio ou nas duas. E troque pelo atalho nas Configurações rápidas.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="como">
+    <div class="head">
+      <h2>Pronto em três passos</h2>
+    </div>
+    <div class="steps">
+      <div class="glass step"><h3>Instale o app</h3><p>Baixe o APK e permita a instalação de apps desconhecidos quando o Android pedir.</p></div>
+      <div class="glass step"><h3>Escolha uma pasta</h3><p>Toque em <b>+</b> e selecione a pasta com seus wallpapers, ou escolha imagens soltas.</p></div>
+      <div class="glass step"><h3>Defina o gatilho</h3><p>Escolha o intervalo, a ordem e, se quiser, ative o toque duplo. Agora é só aproveitar.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="glass gesture">
+      <div class="tap" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11V6a2 2 0 1 1 4 0v5"/><path d="M13 10a2 2 0 1 1 4 0v4a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3.3 15a1.7 1.7 0 0 1 2.7-2l1 1V8a2 2 0 1 1 4 0"/></svg></div>
+      <div>
+        <h2>Toque duas vezes. Wallpaper novo.</h2>
+        <p>O Android não deixa apps comuns perceberem toques na tela inicial. Por isso o WallCycle traz um papel de parede animado que mostra as imagens da sua coleção e entende o toque duplo, sem deixar o celular mais lento.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq">
+    <div class="head"><h2>Dúvidas frequentes</h2></div>
+    <div class="faq">
+      <details class="glass"><summary>É grátis mesmo?</summary><p>Sim. Sem anúncios, sem assinatura e com código aberto no GitHub.</p></details>
+      <details class="glass"><summary>Quais permissões o app usa?</summary><p>Só a de definir papel de parede. As pastas e fotos são acessadas pelo seletor do próprio Android, e só as que você escolher.</p></details>
+      <details class="glass"><summary>Gasta muita bateria?</summary><p>Não. A troca automática usa o agendador do sistema, que agrupa tarefas para economizar energia. Por isso o intervalo mínimo é 15 minutos.</p></details>
+      <details class="glass"><summary>Por que o Android avisa sobre "app desconhecido"?</summary><p>Porque o app é instalado direto pelo APK, fora da Play Store. É só permitir a instalação para o seu navegador ou gerenciador de arquivos.</p></details>
+      <details class="glass"><summary>Meus dados saem do celular?</summary><p>Não. O WallCycle funciona totalmente offline e não coleta nenhuma informação.</p></details>
+    </div>
+  </section>
+
+  <section>
+    <div class="glass final">
+      <h2>Dê vida nova à sua tela inicial</h2>
+      <p>Leva menos de um minuto para configurar.</p>
+      <a class="btn" href="https://github.com/jesieldotdev/WallCycle/releases/latest/download/WallCycle.apk">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+        Baixar APK grátis
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 WallCycle</span>
+    <a href="https://github.com/jesieldotdev/WallCycle">Código no GitHub</a>
+  </footer>
+</div>
+</body>
+</html>

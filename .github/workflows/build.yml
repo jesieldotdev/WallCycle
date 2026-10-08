@@ -17,6 +17,9 @@ concurrency:
   group: build-apk
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -43,3 +46,17 @@ jobs:
           path: app/build/outputs/apk/debug/app-debug.apk
           # Guarda o APK por 3 dias para não acumular armazenamento.
           retention-days: 3
+
+      # Atualiza o download público usado pela landing page
+      # (releases/latest/download/WallCycle.apk). Sempre substitui o arquivo anterior.
+      - name: Atualizar download da landing page
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk WallCycle.apk
+          if gh release view latest >/dev/null 2>&1; then
+            gh release upload latest WallCycle.apk --clobber
+          else
+            gh release create latest WallCycle.apk --title "WallCycle" --notes "Versão mais recente do WallCycle. Baixe o WallCycle.apk e instale no Android."
+          fi

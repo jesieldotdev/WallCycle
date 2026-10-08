@@ -32,3 +32,11 @@ Abra a pasta do projeto no Android Studio (Ladybug ou mais novo) e clique em **R
 O Android não deixa um app comum detectar toques na tela inicial. Por isso o WallCycle tem um
 **papel de parede animado** que exibe as imagens da sua coleção: o launcher avisa a ele cada toque,
 e dois toques rápidos trocam a imagem. Ative em **Gatilhos → Ativar papel de parede com gestos**.
+
+## Site
+
+A landing page fica em `docs/index.html` e é publicada pelo GitHub Pages:
+https://jesieldotdev.github.io/WallCycle/
+
+O botão "Baixar" aponta para o APK publicado automaticamente em
+[Releases](https://github.com/jesieldotdev/WallCycle/releases/latest) a cada build do `main`.
