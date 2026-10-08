@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WallCycle</string>
+    <string name="live_wallpaper_name">WallCycle (gestos)</string>
+    <string name="wallpaper_description">Troca o papel de parede com toque duplo e ao desligar a tela.</string>
+    <string name="tile_label">Próximo wallpaper</string>
+</resources>
