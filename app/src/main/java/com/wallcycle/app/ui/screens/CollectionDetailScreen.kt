@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -61,6 +62,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -70,6 +72,7 @@ import com.wallcycle.app.data.CollectionType
 import com.wallcycle.app.data.Repository
 import com.wallcycle.app.ui.Hint
 import com.wallcycle.app.ui.NameDialog
+import com.wallcycle.app.ui.glass
 import kotlinx.coroutines.launch
 
 @Composable
@@ -125,10 +128,10 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
         }
     }
 
-    Column(Modifier.fillMaxSize()) {
+    Column(Modifier.fillMaxSize().navigationBarsPadding()) {
         TopAppBar(
             windowInsets = WindowInsets(0),
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             title = { Text(collection.name, maxLines = 1) },
             navigationIcon = {
                 IconButton(onClick = onBack) {
@@ -220,8 +223,7 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .aspectRatio(9f / 16f)
-                                .clip(RoundedCornerShape(18.dp))
-                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .glass(RoundedCornerShape(18.dp))
                                 .clickable { selected = uri },
                         )
                     }

@@ -54,6 +54,7 @@ import com.wallcycle.app.data.ChangeOrder
 import com.wallcycle.app.data.Repository
 import com.wallcycle.app.service.GestureWallpaperService
 import com.wallcycle.app.service.NextWallpaperTileService
+import com.wallcycle.app.ui.BottomBarSpace
 import com.wallcycle.app.ui.Hint
 import com.wallcycle.app.ui.ScreenHeader
 import com.wallcycle.app.ui.SectionCard
@@ -84,10 +85,10 @@ fun TriggersScreen() {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
-            .padding(bottom = 24.dp),
+            .padding(bottom = BottomBarSpace),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        ScreenHeader("Gatilhos")
+        ScreenHeader("Gatilhos", eyebrow = "Quando trocar")
 
         SectionCard("Mudança automática", Icons.Rounded.Timer) {
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

@@ -41,10 +41,12 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.wallcycle.app.core.WallpaperChanger
 import com.wallcycle.app.data.Repository
+import com.wallcycle.app.ui.BottomBarSpace
 import com.wallcycle.app.ui.Hint
 import com.wallcycle.app.ui.ScreenHeader
 import com.wallcycle.app.ui.SectionCard
 import com.wallcycle.app.ui.SwitchRow
+import com.wallcycle.app.ui.glass
 import kotlinx.coroutines.launch
 
 @Composable
@@ -66,10 +68,10 @@ fun EffectsScreen() {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
-            .padding(bottom = 24.dp),
+            .padding(bottom = BottomBarSpace),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        ScreenHeader("Efeitos")
+        ScreenHeader("Efeitos", eyebrow = "Visual do wallpaper")
 
         // Pré-visualização do wallpaper atual com os efeitos.
         Box(
@@ -77,8 +79,7 @@ fun EffectsScreen() {
                 .fillMaxWidth(0.55f)
                 .aspectRatio(9f / 19.5f)
                 .align(Alignment.CenterHorizontally)
-                .clip(RoundedCornerShape(28.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
+                .glass(RoundedCornerShape(28.dp), strong = true),
             contentAlignment = Alignment.Center,
         ) {
             if (current != null) {

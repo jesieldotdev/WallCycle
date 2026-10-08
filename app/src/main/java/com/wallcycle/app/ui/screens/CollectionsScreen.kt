@@ -4,6 +4,7 @@ package com.wallcycle.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,16 +29,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AddPhotoAlternate
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.CreateNewFolder
-import androidx.compose.material.icons.rounded.Folder
-import androidx.compose.material.icons.rounded.PhotoLibrary
+import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -48,6 +47,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,18 +59,26 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.documentfile.provider.DocumentFile
 import coil.compose.AsyncImage
+import com.wallcycle.app.core.WallpaperChanger
 import com.wallcycle.app.data.CollectionType
 import com.wallcycle.app.data.Repository
 import com.wallcycle.app.data.WallCollection
+import com.wallcycle.app.ui.BottomBarSpace
+import com.wallcycle.app.ui.GlassIconButton
 import com.wallcycle.app.ui.Hint
 import com.wallcycle.app.ui.NameDialog
+import com.wallcycle.app.ui.Pill
 import com.wallcycle.app.ui.ScreenHeader
+import com.wallcycle.app.ui.glass
+import kotlinx.coroutines.launch
 
 @Composable
 fun CollectionsScreen(onOpen: (String) -> Unit) {
     val context = LocalContext.current
     val collections by Repository.collections.collectAsState()
     val settings by Repository.settings.collectAsState()
+    val current by Repository.current.collectAsState()
+    val activeId = settings.activeCollectionId ?: collections.firstOrNull()?.id
 
     var showAddChooser by remember { mutableStateOf(false) }
     var pendingFolder by remember { mutableStateOf<Uri?>(null) }
@@ -103,41 +111,59 @@ fun CollectionsScreen(onOpen: (String) -> Unit) {
         }
     }
 
-    Box(Modifier.fillMaxSize()) {
-        LazyColumn(
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 120.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            item { ScreenHeader("Coleções") }
-            if (collections.isEmpty()) {
-                item {
-                    Column(Modifier.padding(12.dp)) {
-                        Text("Nenhuma coleção ainda", style = MaterialTheme.typography.titleMedium)
-                        Spacer(Modifier.height(6.dp))
-                        Hint("Toque em + para adicionar uma pasta de wallpapers ou escolher imagens.")
-                    }
-                }
-            }
-            items(collections, key = { it.id }) { c ->
-                CollectionCard(
-                    collection = c,
-                    active = c.id == (settings.activeCollectionId ?: collections.firstOrNull()?.id),
-                    onClick = { onOpen(c.id) },
+    LazyColumn(
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = BottomBarSpace),
+        verticalArrangement = Arrangement.spacedBy(14.dp),
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        item {
+            ScreenHeader(
+                title = "Coleções",
+                eyebrow = "WallCycle",
+                action = {
+                    GlassIconButton(Icons.Rounded.Add, "Nova coleção") { showAddChooser = true }
+                },
+            )
+        }
+
+        if (current != null && collections.isNotEmpty()) {
+            item {
+                NowShowingCard(
+                    current = current,
+                    collectionName = collections.find { it.id == activeId }?.name,
                 )
             }
         }
 
-        FloatingActionButton(
-            onClick = { showAddChooser = true },
-            shape = RoundedCornerShape(20.dp),
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-            contentColor = MaterialTheme.colorScheme.primary,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(20.dp)
-                .size(72.dp),
-        ) {
-            Icon(Icons.Rounded.Add, contentDescription = "Adicionar", modifier = Modifier.size(32.dp))
+        if (collections.isEmpty()) {
+            item {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .glass()
+                        .clickable { showAddChooser = true }
+                        .padding(28.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(
+                        Icons.Rounded.CreateNewFolder, null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(40.dp),
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Text("Nenhuma coleção ainda", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(4.dp))
+                    Hint("Toque aqui para adicionar uma pasta de wallpapers ou escolher imagens.")
+                }
+            }
+        }
+
+        items(collections, key = { it.id }) { c ->
+            CollectionCard(
+                collection = c,
+                active = c.id == activeId,
+                onClick = { onOpen(c.id) },
+            )
         }
     }
 
@@ -206,96 +232,170 @@ fun CollectionsScreen(onOpen: (String) -> Unit) {
     }
 }
 
+/** Destaque com o wallpaper atual e um botão para pular para o próximo. */
+@Composable
+private fun NowShowingCard(current: Uri?, collectionName: String?) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var busy by remember { mutableStateOf(false) }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .glass(strong = true)
+            .padding(12.dp),
+    ) {
+        AsyncImage(
+            model = current,
+            contentDescription = "Wallpaper atual",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .width(84.dp)
+                .aspectRatio(9f / 16f)
+                .clip(RoundedCornerShape(18.dp))
+                .background(Color.White.copy(alpha = 0.08f)),
+        )
+        Spacer(Modifier.width(16.dp))
+        Column(Modifier.weight(1f)) {
+            Text(
+                "EM USO AGORA",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                collectionName ?: "—",
+                style = MaterialTheme.typography.titleLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Spacer(Modifier.height(12.dp))
+            FilledTonalButton(onClick = {
+                if (busy) return@FilledTonalButton
+                busy = true
+                scope.launch {
+                    val ok = WallpaperChanger.next(context)
+                    busy = false
+                    if (!ok) Toast.makeText(context, "Não foi possível alterar", Toast.LENGTH_SHORT).show()
+                }
+            }) {
+                if (busy) CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp)
+                else Icon(Icons.Rounded.SkipNext, null)
+                Spacer(Modifier.width(8.dp))
+                Text("Próximo")
+            }
+        }
+    }
+}
+
+/** Cartão de vidro com mosaico: uma imagem grande e duas pequenas empilhadas. */
 @Composable
 private fun CollectionCard(collection: WallCollection, active: Boolean, onClick: () -> Unit) {
     val settings by Repository.settings.collectAsState()
     val images by produceState<List<Uri>?>(null, collection, settings.includeSubfolders) {
         value = Repository.images(collection)
     }
+    val thumbShape = RoundedCornerShape(20.dp)
 
-    Card(
-        onClick = onClick,
-        shape = RoundedCornerShape(32.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (active) MaterialTheme.colorScheme.surfaceContainerHighest
-            else MaterialTheme.colorScheme.surfaceContainer
-        ),
-        modifier = Modifier.fillMaxWidth(),
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .glass(RoundedCornerShape(30.dp), strong = active)
+            .clickable(onClick = onClick)
+            .padding(10.dp),
     ) {
-        Column(Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(horizontal = 8.dp)) {
-                Icon(
-                    if (collection.type == CollectionType.FOLDER) Icons.Rounded.Folder
-                    else Icons.Rounded.PhotoLibrary,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(32.dp),
-                )
-                Spacer(Modifier.width(20.dp))
-                Text(
-                    collection.name,
-                    style = MaterialTheme.typography.headlineSmall,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
-                )
-                if (active) {
-                    Icon(
-                        Icons.Rounded.CheckCircle,
-                        contentDescription = "Coleção ativa",
-                        tint = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            }
-
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(176.dp),
+        ) {
             val list = images
             when {
-                list == null -> {
-                    Spacer(Modifier.height(20.dp))
-                    LinearProgressIndicator(Modifier.fillMaxWidth())
+                list == null -> Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(Modifier.size(28.dp), strokeWidth = 2.dp)
                 }
-                list.isNotEmpty() -> {
-                    Spacer(Modifier.height(20.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        list.take(4).forEachIndexed { i, uri ->
-                            Box(
-                                Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .clip(RoundedCornerShape(24.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                contentAlignment = Alignment.Center,
+                list.isEmpty() -> Box(
+                    Modifier
+                        .fillMaxSize()
+                        .clip(thumbShape)
+                        .background(Color.White.copy(alpha = 0.06f)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Hint("Nenhuma imagem encontrada")
+                }
+                else -> {
+                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Thumb(list[0], thumbShape, Modifier.weight(2f).fillMaxHeight())
+                        if (list.size > 1) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier.weight(1f).fillMaxHeight(),
                             ) {
-                                AsyncImage(
-                                    model = uri,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.fillMaxSize(),
-                                )
-                                if (i == 3 && list.size > 4) {
-                                    Box(
-                                        Modifier
-                                            .fillMaxSize()
-                                            .background(Color.Black.copy(alpha = 0.55f)),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Text(
-                                            "+${list.size - 4}",
-                                            color = Color.White,
-                                            style = MaterialTheme.typography.headlineSmall,
-                                        )
-                                    }
+                                Thumb(list[1], thumbShape, Modifier.weight(1f).fillMaxWidth())
+                                if (list.size > 2) {
+                                    Thumb(list[2], thumbShape, Modifier.weight(1f).fillMaxWidth())
                                 }
                             }
                         }
-                        repeat(4 - minOf(4, list.size)) { Spacer(Modifier.weight(1f)) }
+                    }
+                    if (list.size > 3) {
+                        Pill(
+                            "+${list.size - 3}",
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(10.dp),
+                        )
                     }
                 }
-                else -> {
-                    Spacer(Modifier.height(12.dp))
-                    Hint("Nenhuma imagem encontrada")
-                }
+            }
+            if (active) {
+                Pill(
+                    "Ativa",
+                    accent = true,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(10.dp),
+                )
             }
         }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 12.dp, bottom = 6.dp),
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    collection.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                val count = images?.size
+                Hint(
+                    buildString {
+                        append(if (collection.type == CollectionType.FOLDER) "Pasta" else "Seleção")
+                        if (count != null) append(" · $count imagens")
+                    }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Thumb(uri: Uri, shape: RoundedCornerShape, modifier: Modifier) {
+    Box(
+        modifier
+            .clip(shape)
+            .background(Color.White.copy(alpha = 0.08f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(Icons.Rounded.Image, null, tint = Color.White.copy(alpha = 0.25f))
+        AsyncImage(
+            model = uri,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }

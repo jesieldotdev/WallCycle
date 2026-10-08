@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wallcycle.app.data.Repository
 import com.wallcycle.app.data.WallTarget
+import com.wallcycle.app.ui.BottomBarSpace
 import com.wallcycle.app.ui.Hint
 import com.wallcycle.app.ui.ScreenHeader
 import com.wallcycle.app.ui.SectionCard
@@ -40,10 +41,10 @@ fun SettingsScreen() {
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp)
-            .padding(bottom = 24.dp),
+            .padding(bottom = BottomBarSpace),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        ScreenHeader("Configurações")
+        ScreenHeader("Configurações", eyebrow = "Preferências")
 
         SectionCard("Aplicar em", Icons.Rounded.Smartphone) {
             SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {

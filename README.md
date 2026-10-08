@@ -4,7 +4,8 @@ App Android (Kotlin + Jetpack Compose) que usa pastas de imagens como papel de p
 
 ## Funções
 
-- **Coleções**: adicione uma pasta inteira (acompanha arquivos novos) ou escolha imagens soltas. Prévia com 4 miniaturas e contador `+N`.
+- **Visual**: translúcido — o papel de parede aparece desfocado atrás do app (Android 12+), cartões de vidro e barra de navegação flutuante.
+- **Coleções**: adicione uma pasta inteira (acompanha arquivos novos) ou escolha imagens soltas. Cartões em mosaico e destaque do wallpaper em uso com botão "Próximo".
 - **Gatilhos**
   - Troca automática a cada 15 min, 30 min, 1 h, 3 h, 6 h, 12 h ou 24 h.
   - Ordem aleatória (evita repetir as recentes) ou sequencial.
