@@ -89,8 +89,23 @@ object Repository {
         it.copy(imageUris = (it.imageUris + uris.map(Uri::toString)).distinct())
     }
 
-    fun removeImage(collectionId: String, uri: Uri) = editCollection(collectionId) {
-        it.copy(imageUris = it.imageUris - uri.toString())
+    fun removeImage(collectionId: String, uri: Uri) = removeImages(collectionId, listOf(uri))
+
+    /**
+     * Tira imagens da coleção. Em coleções de imagens soltas elas saem da lista;
+     * em pastas, ficam ocultas da rotação (o arquivo no aparelho não é apagado).
+     */
+    fun removeImages(collectionId: String, uris: Collection<Uri>) = editCollection(collectionId) { c ->
+        val ids = uris.map(Uri::toString).toSet()
+        when (c.type) {
+            CollectionType.IMAGES -> c.copy(imageUris = c.imageUris.filterNot { it in ids })
+            CollectionType.FOLDER -> c.copy(excluded = (c.excluded + ids).distinct())
+        }
+    }
+
+    /** Volta a mostrar as imagens ocultadas de uma pasta. */
+    fun restoreExcluded(collectionId: String) = editCollection(collectionId) {
+        it.copy(excluded = emptyList())
     }
 
     fun rename(collectionId: String, name: String) = editCollection(collectionId) {
@@ -130,14 +145,16 @@ object Repository {
     suspend fun images(c: WallCollection, refresh: Boolean = false): List<Uri> =
         withContext(Dispatchers.IO) {
             val recursive = _settings.value.includeSubfolders
-            val key = "${c.id}|$recursive|${c.imageUris.size}"
+            val key = "${c.id}|$recursive|${c.imageUris.size}|${c.excluded.size}"
             if (!refresh) imageCache[key]?.let { return@withContext it }
-            val list = when (c.type) {
+            val hidden = c.excluded.toSet()
+            val all = when (c.type) {
                 CollectionType.IMAGES -> c.imageUris.map(Uri::parse)
                 CollectionType.FOLDER -> c.folderUri?.let {
                     runCatching { listImagesInTree(Uri.parse(it), recursive) }.getOrDefault(emptyList())
                 } ?: emptyList()
             }
+            val list = if (hidden.isEmpty()) all else all.filterNot { it.toString() in hidden }
             imageCache.keys.removeAll { it.startsWith(c.id) }
             imageCache[key] = list
             list
@@ -247,6 +264,7 @@ object Repository {
                 put("type", c.type.name)
                 put("folder", c.folderUri ?: "")
                 put("images", JSONArray(c.imageUris))
+                put("excluded", JSONArray(c.excluded))
             })
         }
         prefs.edit().putString(KEY_COLLECTIONS, arr.toString()).apply()
@@ -257,12 +275,14 @@ object Repository {
         List(arr.length()) { i ->
             val o = arr.getJSONObject(i)
             val imgs = o.optJSONArray("images") ?: JSONArray()
+            val exc = o.optJSONArray("excluded") ?: JSONArray()
             WallCollection(
                 id = o.getString("id"),
                 name = o.getString("name"),
                 type = enumOr(o.optString("type"), CollectionType.FOLDER),
                 folderUri = o.optString("folder").ifBlank { null },
                 imageUris = List(imgs.length()) { imgs.getString(it) },
+                excluded = List(exc.length()) { exc.getString(it) },
             )
         }
     }.getOrDefault(emptyList())

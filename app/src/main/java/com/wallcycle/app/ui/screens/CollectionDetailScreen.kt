@@ -1,4 +1,7 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(
+    androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.foundation.ExperimentalFoundationApi::class,
+)
 
 package com.wallcycle.app.ui.screens
 
@@ -9,7 +12,9 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +38,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.AddPhotoAlternate
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.SelectAll
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.SkipNext
@@ -98,6 +107,22 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
     var confirmDelete by remember { mutableStateOf(false) }
     var selected by remember { mutableStateOf<Uri?>(null) }
     var busy by remember { mutableStateOf(false) }
+    var selection by remember(collectionId) { mutableStateOf(setOf<Uri>()) }
+    var confirmRemove by remember { mutableStateOf(false) }
+    val selecting = selection.isNotEmpty()
+
+    // Com itens selecionados, "voltar" só limpa a seleção.
+    BackHandler(enabled = selecting) { selection = emptySet() }
+
+    fun removeNow(uris: Set<Uri>) {
+        Repository.removeImages(collection.id, uris)
+        selection = emptySet()
+        Toast.makeText(
+            context,
+            if (uris.size == 1) "Wallpaper removido" else "${uris.size} wallpapers removidos",
+            Toast.LENGTH_SHORT,
+        ).show()
+    }
 
     val isActive = collection.id == (settings.activeCollectionId ?: collections.firstOrNull()?.id)
 
@@ -132,13 +157,29 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
         TopAppBar(
             windowInsets = WindowInsets(0),
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-            title = { Text(collection.name, maxLines = 1) },
+            title = {
+                Text(if (selecting) "${selection.size} selecionada(s)" else collection.name, maxLines = 1)
+            },
             navigationIcon = {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Voltar")
+                if (selecting) {
+                    IconButton(onClick = { selection = emptySet() }) {
+                        Icon(Icons.Rounded.Close, contentDescription = "Cancelar seleção")
+                    }
+                } else {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Voltar")
+                    }
                 }
             },
             actions = {
+                if (selecting) {
+                    IconButton(onClick = { images?.let { selection = it.toSet() } }) {
+                        Icon(Icons.Rounded.SelectAll, contentDescription = "Selecionar tudo")
+                    }
+                    IconButton(onClick = { confirmRemove = true }) {
+                        Icon(Icons.Rounded.Delete, contentDescription = "Remover selecionadas")
+                    }
+                } else {
                 if (collection.type == CollectionType.FOLDER) {
                     IconButton(onClick = { refreshKey++ }) {
                         Icon(Icons.Rounded.Refresh, contentDescription = "Atualizar pasta")
@@ -153,6 +194,12 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
                         Icon(Icons.Rounded.MoreVert, contentDescription = "Mais")
                     }
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                        if (collection.type == CollectionType.FOLDER && collection.excluded.isNotEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("Restaurar removidas (${collection.excluded.size})") },
+                                onClick = { menuOpen = false; Repository.restoreExcluded(collection.id) },
+                            )
+                        }
                         DropdownMenuItem(text = { Text("Renomear") }, onClick = {
                             menuOpen = false; renaming = true
                         })
@@ -160,6 +207,7 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
                             menuOpen = false; confirmDelete = true
                         })
                     }
+                }
                 }
             },
         )
@@ -208,7 +256,7 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
             }
             else -> {
                 Box(Modifier.padding(horizontal = 20.dp, vertical = 4.dp)) {
-                    Hint("${list.size} imagens · toque para definir como papel de parede")
+                    Hint("${list.size} imagens · toque para aplicar, segure para selecionar e remover")
                 }
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(110.dp),
@@ -217,15 +265,45 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(list, key = { it.toString() }) { uri ->
-                        AsyncImage(
-                            model = uri,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
+                        val isSel = uri in selection
+                        Box(
+                            Modifier
                                 .aspectRatio(9f / 16f)
                                 .glass(RoundedCornerShape(18.dp))
-                                .clickable { selected = uri },
-                        )
+                                .combinedClickable(
+                                    onClick = {
+                                        if (selecting) selection = if (isSel) selection - uri else selection + uri
+                                        else selected = uri
+                                    },
+                                    onLongClick = {
+                                        selection = if (isSel) selection - uri else selection + uri
+                                    },
+                                ),
+                        ) {
+                            AsyncImage(
+                                model = uri,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize(),
+                            )
+                            if (isSel) {
+                                Box(
+                                    Modifier
+                                        .fillMaxSize()
+                                        .background(Color.Black.copy(alpha = 0.45f))
+                                        .border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(18.dp)),
+                                )
+                                Icon(
+                                    Icons.Rounded.CheckCircle,
+                                    contentDescription = "Selecionada",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(8.dp)
+                                        .size(26.dp),
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -255,15 +333,36 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
             },
             dismissButton = {
                 Row {
-                    if (collection.type == CollectionType.IMAGES) {
-                        TextButton(onClick = {
-                            Repository.removeImage(collection.id, uri)
-                            selected = null
-                        }) { Text("Remover") }
-                    }
+                    TextButton(onClick = {
+                        selected = null
+                        removeNow(setOf(uri))
+                    }) { Text("Remover") }
                     TextButton(onClick = { selected = null }) { Text("Cancelar") }
                 }
             },
+        )
+    }
+
+    if (confirmRemove) {
+        val n = selection.size
+        AlertDialog(
+            onDismissRequest = { confirmRemove = false },
+            title = { Text(if (n == 1) "Remover 1 wallpaper?" else "Remover $n wallpapers?") },
+            text = {
+                Text(
+                    if (collection.type == CollectionType.FOLDER)
+                        "Eles deixam de aparecer nesta coleção. Os arquivos continuam na pasta e podem ser restaurados pelo menu ⋮."
+                    else
+                        "Eles saem desta coleção. Os arquivos continuam no aparelho."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmRemove = false
+                    removeNow(selection)
+                }) { Text("Remover") }
+            },
+            dismissButton = { TextButton(onClick = { confirmRemove = false }) { Text("Cancelar") } },
         )
     }
 

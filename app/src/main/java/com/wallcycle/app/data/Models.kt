@@ -14,6 +14,8 @@ data class WallCollection(
     val folderUri: String? = null,
     /** Imagens escolhidas manualmente quando type == IMAGES. */
     val imageUris: List<String> = emptyList(),
+    /** Imagens da pasta que o usuário removeu da rotação (o arquivo não é apagado). */
+    val excluded: List<String> = emptyList(),
 )
 
 data class AppSettings(
