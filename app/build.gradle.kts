@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.wallcycle.app"
+    namespace = "com.vitro.app"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.wallcycle.app"
+        applicationId = "com.vitro.app"
         minSdk = 26
         targetSdk = 35
         // No GitHub Actions cada build ganha um número maior, então o Android
@@ -22,17 +22,17 @@ android {
     // Assinatura fixa: o CI recebe a chave pelos Secrets do repositório
     // (veja o README). Sem ela, cada build gerava uma chave de debug nova e o
     // Android recusava a atualização com "App não instalado".
-    val keystorePath = System.getenv("WALLCYCLE_KEYSTORE")
+    val keystorePath = System.getenv("SIGNING_KEYSTORE")
     val fixedKey = keystorePath != null && file(keystorePath).exists()
     if (fixedKey) {
-        signingConfigs.create("wallcycle") {
+        signingConfigs.create("fixed") {
             storeFile = file(keystorePath!!)
-            storePassword = System.getenv("WALLCYCLE_KEYSTORE_PASSWORD")
-            keyAlias = System.getenv("WALLCYCLE_KEY_ALIAS")
-            keyPassword = System.getenv("WALLCYCLE_KEYSTORE_PASSWORD")
+            storePassword = System.getenv("SIGNING_PASSWORD")
+            keyAlias = System.getenv("SIGNING_KEY_ALIAS")
+            keyPassword = System.getenv("SIGNING_PASSWORD")
         }
     }
-    val signing = signingConfigs.getByName(if (fixedKey) "wallcycle" else "debug")
+    val signing = signingConfigs.getByName(if (fixedKey) "fixed" else "debug")
 
     buildTypes {
         debug {

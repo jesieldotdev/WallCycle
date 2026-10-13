@@ -3,7 +3,7 @@
     androidx.compose.foundation.layout.ExperimentalLayoutApi::class,
 )
 
-package com.wallcycle.app.ui.screens
+package com.vitro.app.ui.screens
 
 import android.app.StatusBarManager
 import android.app.WallpaperManager
@@ -48,18 +48,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
-import com.wallcycle.app.R
-import com.wallcycle.app.core.WallpaperChanger
-import com.wallcycle.app.data.ChangeOrder
-import com.wallcycle.app.data.Repository
-import com.wallcycle.app.service.GestureWallpaperService
-import com.wallcycle.app.service.NextWallpaperTileService
-import com.wallcycle.app.ui.BottomBarSpace
-import com.wallcycle.app.ui.Hint
-import com.wallcycle.app.ui.ScreenHeader
-import com.wallcycle.app.ui.SectionCard
-import com.wallcycle.app.ui.SwitchRow
-import com.wallcycle.app.work.Scheduler
+import com.vitro.app.R
+import com.vitro.app.core.WallpaperChanger
+import com.vitro.app.data.ChangeOrder
+import com.vitro.app.data.Repository
+import com.vitro.app.service.GestureWallpaperService
+import com.vitro.app.service.NextWallpaperTileService
+import com.vitro.app.ui.BottomBarSpace
+import com.vitro.app.ui.Hint
+import com.vitro.app.ui.ScreenHeader
+import com.vitro.app.ui.SectionCard
+import com.vitro.app.ui.SwitchRow
+import com.vitro.app.work.Scheduler
 import kotlinx.coroutines.launch
 
 private val INTERVALS = listOf(
@@ -123,7 +123,7 @@ fun TriggersScreen() {
         SectionCard("Gestos", Icons.Rounded.TouchApp) {
             Text(
                 if (liveActive) "✓ Papel de parede com gestos ativo"
-                else "Para usar gestos, ative o papel de parede animado do WallCycle (ele mostra as imagens da sua coleção).",
+                else "Para usar gestos, ative o papel de parede animado do Vitrô (ele mostra as imagens da sua coleção).",
                 style = MaterialTheme.typography.bodyMedium,
                 color = if (liveActive) MaterialTheme.colorScheme.primary
                 else MaterialTheme.colorScheme.onSurfaceVariant,

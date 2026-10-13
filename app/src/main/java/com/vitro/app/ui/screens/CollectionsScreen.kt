@@ -1,6 +1,6 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 
-package com.wallcycle.app.ui.screens
+package com.vitro.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri
@@ -59,17 +59,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.documentfile.provider.DocumentFile
 import coil.compose.AsyncImage
-import com.wallcycle.app.core.WallpaperChanger
-import com.wallcycle.app.data.CollectionType
-import com.wallcycle.app.data.Repository
-import com.wallcycle.app.data.WallCollection
-import com.wallcycle.app.ui.BottomBarSpace
-import com.wallcycle.app.ui.GlassIconButton
-import com.wallcycle.app.ui.Hint
-import com.wallcycle.app.ui.NameDialog
-import com.wallcycle.app.ui.Pill
-import com.wallcycle.app.ui.ScreenHeader
-import com.wallcycle.app.ui.glass
+import com.vitro.app.core.WallpaperChanger
+import com.vitro.app.data.CollectionType
+import com.vitro.app.data.Repository
+import com.vitro.app.data.WallCollection
+import com.vitro.app.ui.BottomBarSpace
+import com.vitro.app.ui.GlassIconButton
+import com.vitro.app.ui.Hint
+import com.vitro.app.ui.NameDialog
+import com.vitro.app.ui.Pill
+import com.vitro.app.ui.ScreenHeader
+import com.vitro.app.ui.glass
 import kotlinx.coroutines.launch
 
 @Composable
@@ -119,7 +119,7 @@ fun CollectionsScreen(onOpen: (String) -> Unit) {
         item {
             ScreenHeader(
                 title = "Coleções",
-                eyebrow = "WallCycle",
+                eyebrow = "Vitrô",
                 action = {
                     GlassIconButton(Icons.Rounded.Add, "Nova coleção") { showAddChooser = true }
                 },

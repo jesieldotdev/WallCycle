@@ -1,4 +1,4 @@
-package com.wallcycle.app.ui.theme
+package com.vitro.app.ui.theme
 
 import android.os.Build
 import androidx.compose.material3.LocalContentColor
@@ -52,7 +52,7 @@ private val AppTypography = base.copy(
 )
 
 @Composable
-fun WallCycleTheme(dynamicColor: Boolean, content: @Composable () -> Unit) {
+fun VitroTheme(dynamicColor: Boolean, content: @Composable () -> Unit) {
     val context = LocalContext.current
     val accent = if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         dynamicDarkColorScheme(context).primary

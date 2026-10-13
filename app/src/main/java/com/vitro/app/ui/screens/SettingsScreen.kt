@@ -1,6 +1,6 @@
 @file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 
-package com.wallcycle.app.ui.screens
+package com.vitro.app.ui.screens
 
 import android.os.Build
 import androidx.compose.foundation.layout.Arrangement
@@ -25,13 +25,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.wallcycle.app.data.Repository
-import com.wallcycle.app.data.WallTarget
-import com.wallcycle.app.ui.BottomBarSpace
-import com.wallcycle.app.ui.Hint
-import com.wallcycle.app.ui.ScreenHeader
-import com.wallcycle.app.ui.SectionCard
-import com.wallcycle.app.ui.SwitchRow
+import com.vitro.app.data.Repository
+import com.vitro.app.data.WallTarget
+import com.vitro.app.ui.BottomBarSpace
+import com.vitro.app.ui.Hint
+import com.vitro.app.ui.ScreenHeader
+import com.vitro.app.ui.SectionCard
+import com.vitro.app.ui.SwitchRow
 
 @Composable
 fun SettingsScreen() {
@@ -91,7 +91,7 @@ fun SettingsScreen() {
             val version = runCatching {
                 context.packageManager.getPackageInfo(context.packageName, 0).versionName
             }.getOrNull() ?: "?"
-            Hint("WallCycle $version · Troca automática de papel de parede a partir das suas pastas.")
+            Hint("Vitrô $version · Wallpaper changer e slides a partir das suas pastas.")
         }
     }
 }

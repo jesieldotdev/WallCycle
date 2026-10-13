@@ -1,4 +1,4 @@
-package com.wallcycle.app.ui
+package com.vitro.app.ui
 
 import android.graphics.Color as AndroidColor
 import android.os.Bundle
@@ -46,13 +46,13 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.wallcycle.app.data.Repository
-import com.wallcycle.app.ui.screens.CollectionDetailScreen
-import com.wallcycle.app.ui.screens.CollectionsScreen
-import com.wallcycle.app.ui.screens.EffectsScreen
-import com.wallcycle.app.ui.screens.SettingsScreen
-import com.wallcycle.app.ui.screens.TriggersScreen
-import com.wallcycle.app.ui.theme.WallCycleTheme
+import com.vitro.app.data.Repository
+import com.vitro.app.ui.screens.CollectionDetailScreen
+import com.vitro.app.ui.screens.CollectionsScreen
+import com.vitro.app.ui.screens.EffectsScreen
+import com.vitro.app.ui.screens.SettingsScreen
+import com.vitro.app.ui.screens.TriggersScreen
+import com.vitro.app.ui.theme.VitroTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             val settings by Repository.settings.collectAsState()
-            WallCycleTheme(dynamicColor = settings.dynamicColor) {
+            VitroTheme(dynamicColor = settings.dynamicColor) {
                 AppRoot()
             }
         }

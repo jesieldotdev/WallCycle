@@ -3,7 +3,7 @@
     androidx.compose.foundation.ExperimentalFoundationApi::class,
 )
 
-package com.wallcycle.app.ui.screens
+package com.vitro.app.ui.screens
 
 import android.content.Intent
 import android.net.Uri
@@ -76,12 +76,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.wallcycle.app.core.WallpaperChanger
-import com.wallcycle.app.data.CollectionType
-import com.wallcycle.app.data.Repository
-import com.wallcycle.app.ui.Hint
-import com.wallcycle.app.ui.NameDialog
-import com.wallcycle.app.ui.glass
+import com.vitro.app.core.WallpaperChanger
+import com.vitro.app.data.CollectionType
+import com.vitro.app.data.Repository
+import com.vitro.app.ui.Hint
+import com.vitro.app.ui.NameDialog
+import com.vitro.app.ui.glass
 import kotlinx.coroutines.launch
 
 @Composable

@@ -1,4 +1,4 @@
-package com.wallcycle.app.ui
+package com.vitro.app.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

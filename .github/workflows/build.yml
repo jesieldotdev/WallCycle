@@ -43,36 +43,37 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
           if [ -n "$KEYSTORE_BASE64" ]; then
-            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/wallcycle.keystore"
-            echo "WALLCYCLE_KEYSTORE=$RUNNER_TEMP/wallcycle.keystore" >> "$GITHUB_ENV"
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/app.keystore"
+            echo "SIGNING_KEYSTORE=$RUNNER_TEMP/app.keystore" >> "$GITHUB_ENV"
           else
             echo "::warning::Secret KEYSTORE_BASE64 não configurado — o APK não vai atualizar por cima da versão instalada."
           fi
 
       - name: Compilar APK
         env:
-          WALLCYCLE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          WALLCYCLE_KEY_ALIAS: wallcycle
+          SIGNING_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          # Alias definido quando a chave foi criada (não muda com o nome do app).
+          SIGNING_KEY_ALIAS: wallcycle
         run: gradle assembleDebug --no-daemon
 
       - name: Publicar APK
         uses: actions/upload-artifact@v4
         with:
-          name: WallCycle-apk
+          name: Vitro-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           # Guarda o APK por 3 dias para não acumular armazenamento.
           retention-days: 3
 
       # Atualiza o download público usado pela landing page
-      # (releases/latest/download/WallCycle.apk). Sempre substitui o arquivo anterior.
+      # (releases/latest/download/Vitro.apk). Sempre substitui o arquivo anterior.
       - name: Atualizar download da landing page
         if: github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk WallCycle.apk
+          cp app/build/outputs/apk/debug/app-debug.apk Vitro.apk
           if gh release view latest >/dev/null 2>&1; then
-            gh release upload latest WallCycle.apk --clobber
+            gh release upload latest Vitro.apk --clobber
           else
-            gh release create latest WallCycle.apk --title "WallCycle" --notes "Versão mais recente do WallCycle. Baixe o WallCycle.apk e instale no Android."
+            gh release create latest Vitro.apk --title "Vitrô" --notes "Versão mais recente do Vitrô. Baixe o Vitro.apk e instale no Android."
           fi

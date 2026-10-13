@@ -1,8 +1,8 @@
-package com.wallcycle.app.service
+package com.vitro.app.service
 
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import com.wallcycle.app.work.Scheduler
+import com.vitro.app.work.Scheduler
 
 /** Bloco "Próximo wallpaper" nas Configurações rápidas. */
 class NextWallpaperTileService : TileService() {

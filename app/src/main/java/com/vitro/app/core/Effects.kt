@@ -1,4 +1,4 @@
-package com.wallcycle.app.core
+package com.vitro.app.core
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -6,7 +6,7 @@ import android.graphics.Color
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
-import com.wallcycle.app.data.AppSettings
+import com.vitro.app.data.AppSettings
 import kotlin.math.max
 
 /** Efeitos aplicados ao bitmap antes de virar papel de parede. */
