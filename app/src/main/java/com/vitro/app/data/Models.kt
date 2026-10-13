@@ -1,4 +1,4 @@
-package com.wallcycle.app.data
+package com.vitro.app.data
 
 enum class CollectionType { FOLDER, IMAGES }
 

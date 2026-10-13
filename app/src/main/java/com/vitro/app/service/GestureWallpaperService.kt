@@ -1,4 +1,4 @@
-package com.wallcycle.app.service
+package com.vitro.app.service
 
 import android.app.WallpaperManager
 import android.content.BroadcastReceiver
@@ -15,10 +15,10 @@ import android.os.SystemClock
 import android.service.wallpaper.WallpaperService
 import android.view.SurfaceHolder
 import androidx.core.content.ContextCompat
-import com.wallcycle.app.core.BitmapUtils
-import com.wallcycle.app.core.Effects
-import com.wallcycle.app.core.WallpaperChanger
-import com.wallcycle.app.data.Repository
+import com.vitro.app.core.BitmapUtils
+import com.vitro.app.core.Effects
+import com.vitro.app.core.WallpaperChanger
+import com.vitro.app.data.Repository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -173,7 +173,7 @@ class GestureWallpaperService : WallpaperService() {
                     canvas.drawBitmap(bmp, null, Rect(0, 0, canvas.width, canvas.height), paint)
                 } else if (Repository.collections.value.isEmpty()) {
                     canvas.drawText(
-                        "Abra o WallCycle e crie uma coleção",
+                        "Abra o Vitrô e crie uma coleção",
                         canvas.width / 2f, canvas.height / 2f, textPaint
                     )
                 }

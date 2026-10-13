@@ -1,9 +1,9 @@
-package com.wallcycle.app
+package com.vitro.app
 
 import android.app.Application
-import com.wallcycle.app.data.Repository
+import com.vitro.app.data.Repository
 
-class WallCycleApp : Application() {
+class VitroApp : Application() {
     override fun onCreate() {
         super.onCreate()
         Repository.init(this)

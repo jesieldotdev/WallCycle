@@ -1,4 +1,4 @@
-package com.wallcycle.app.data
+package com.vitro.app.data
 
 import android.content.Context
 import android.content.Intent
@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap
 object Repository {
 
     const val KEY_CURRENT = "current_uri"
-    private const val PREFS = "wallcycle"
+    private const val PREFS = "vitro"
     private const val KEY_COLLECTIONS = "collections"
     private const val KEY_SEQ_INDEX = "seq_index"
     private const val KEY_HISTORY = "history"

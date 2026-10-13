@@ -1,4 +1,4 @@
-package com.wallcycle.app.core
+package com.vitro.app.core
 
 import android.content.Context
 import android.graphics.Bitmap

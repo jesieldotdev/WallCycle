@@ -1,4 +1,4 @@
-package com.wallcycle.app.work
+package com.vitro.app.work
 
 import android.content.Context
 import androidx.work.CoroutineWorker
@@ -8,7 +8,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.wallcycle.app.core.WallpaperChanger
+import com.vitro.app.core.WallpaperChanger
 import java.util.concurrent.TimeUnit
 
 class ChangeWallpaperWorker(context: Context, params: WorkerParameters) :
@@ -18,8 +18,8 @@ class ChangeWallpaperWorker(context: Context, params: WorkerParameters) :
 }
 
 object Scheduler {
-    private const val PERIODIC = "wallcycle_periodic"
-    private const val ONE_SHOT = "wallcycle_now"
+    private const val PERIODIC = "vitro_periodic"
+    private const val ONE_SHOT = "vitro_now"
 
     /** Agenda (ou cancela, se minutes == 0) a troca automática. Mínimo do Android: 15 min. */
     fun schedule(context: Context, minutes: Int) {

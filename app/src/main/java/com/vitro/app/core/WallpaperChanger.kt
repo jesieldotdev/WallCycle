@@ -1,12 +1,12 @@
-package com.wallcycle.app.core
+package com.vitro.app.core
 
 import android.app.WallpaperManager
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import com.wallcycle.app.data.ChangeOrder
-import com.wallcycle.app.data.Repository
-import com.wallcycle.app.data.WallTarget
+import com.vitro.app.data.ChangeOrder
+import com.vitro.app.data.Repository
+import com.vitro.app.data.WallTarget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -17,7 +17,7 @@ object WallpaperChanger {
     private const val TAG = "WallpaperChanger"
     private val mutex = Mutex()
 
-    /** O papel de parede animado do WallCycle está ativo no sistema? */
+    /** O papel de parede animado do Vitrô está ativo no sistema? */
     fun isLiveActive(context: Context): Boolean =
         WallpaperManager.getInstance(context).wallpaperInfo?.packageName == context.packageName
 

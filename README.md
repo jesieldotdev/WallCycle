@@ -1,6 +1,6 @@
-# WallCycle
+# Vitrô — Wallpaper Changer / Slides
 
-App Android (Kotlin + Jetpack Compose) que usa pastas de imagens como papel de parede.
+App Android (Kotlin + Jetpack Compose) que usa pastas de imagens como papel de parede, trocando sozinho como um slideshow.
 
 ## Funções
 
@@ -19,7 +19,7 @@ App Android (Kotlin + Jetpack Compose) que usa pastas de imagens como papel de p
 ## Baixar o APK (GitHub Actions)
 
 1. Abra a aba **Actions** do repositório → **Build APK** → **Run workflow**.
-2. Quando terminar (~5 min), abra a execução e baixe **WallCycle-apk** em *Artifacts*.
+2. Quando terminar (~5 min), abra a execução e baixe **Vitro-apk** em *Artifacts*.
 3. Descompacte e instale o `app-debug.apk` no celular (permita "instalar apps desconhecidos").
 
 O build também roda sozinho quando o código em `app/` muda no `main`. O APK fica guardado 3 dias.
@@ -29,8 +29,8 @@ O build também roda sozinho quando o código em `app/` muda no `main`. O APK fi
 Para que cada APK novo instale por cima do anterior, todos precisam ter a mesma assinatura.
 Em **Settings → Secrets and variables → Actions → New repository secret**, crie:
 
-- `KEYSTORE_BASE64`: o arquivo `.keystore` convertido em base64 (`base64 -w0 wallcycle.keystore`)
-- `KEYSTORE_PASSWORD`: a senha da chave (alias `wallcycle`)
+- `KEYSTORE_BASE64`: o arquivo `.keystore` convertido em base64 (`base64 -w0 sua-chave.keystore`)
+- `KEYSTORE_PASSWORD`: a senha da chave (alias `wallcycle`, definido quando a chave foi criada)
 
 Depois de configurar, desinstale a versão antiga **uma única vez** e instale a nova; daí em diante
 as atualizações instalam por cima, mantendo suas coleções.
@@ -41,7 +41,7 @@ Abra a pasta do projeto no Android Studio (Ladybug ou mais novo) e clique em **R
 
 ## Como os gestos funcionam
 
-O Android não deixa um app comum detectar toques na tela inicial. Por isso o WallCycle tem um
+O Android não deixa um app comum detectar toques na tela inicial. Por isso o Vitrô tem um
 **papel de parede animado** que exibe as imagens da sua coleção: o launcher avisa a ele cada toque,
 e dois toques rápidos trocam a imagem. Ative em **Gatilhos → Ativar papel de parede com gestos**.
 

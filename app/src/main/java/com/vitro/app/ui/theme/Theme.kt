@@ -1,11 +1,13 @@
-package com.wallcycle.app.ui.theme
+package com.vitro.app.ui.theme
 
 import android.os.Build
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -50,12 +52,16 @@ private val AppTypography = base.copy(
 )
 
 @Composable
-fun WallCycleTheme(dynamicColor: Boolean, content: @Composable () -> Unit) {
+fun VitroTheme(dynamicColor: Boolean, content: @Composable () -> Unit) {
     val context = LocalContext.current
     val accent = if (dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         dynamicDarkColorScheme(context).primary
     } else {
         GlassPalette.Accent
     }
-    MaterialTheme(colorScheme = glassScheme(accent), typography = AppTypography, content = content)
+    MaterialTheme(colorScheme = glassScheme(accent), typography = AppTypography) {
+        // O app não fica dentro de uma Surface (o fundo é o wallpaper), então sem isto
+        // todo Text sem cor explícita sairia preto sobre o fundo escuro.
+        CompositionLocalProvider(LocalContentColor provides GlassPalette.Text, content = content)
+    }
 }

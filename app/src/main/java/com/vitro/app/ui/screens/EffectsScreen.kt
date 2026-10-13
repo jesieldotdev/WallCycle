@@ -1,4 +1,4 @@
-package com.wallcycle.app.ui.screens
+package com.vitro.app.ui.screens
 
 import android.os.Build
 import android.widget.Toast
@@ -39,14 +39,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.wallcycle.app.core.WallpaperChanger
-import com.wallcycle.app.data.Repository
-import com.wallcycle.app.ui.BottomBarSpace
-import com.wallcycle.app.ui.Hint
-import com.wallcycle.app.ui.ScreenHeader
-import com.wallcycle.app.ui.SectionCard
-import com.wallcycle.app.ui.SwitchRow
-import com.wallcycle.app.ui.glass
+import com.vitro.app.core.WallpaperChanger
+import com.vitro.app.data.Repository
+import com.vitro.app.ui.BottomBarSpace
+import com.vitro.app.ui.Hint
+import com.vitro.app.ui.ScreenHeader
+import com.vitro.app.ui.SectionCard
+import com.vitro.app.ui.SwitchRow
+import com.vitro.app.ui.glass
 import kotlinx.coroutines.launch
 
 @Composable
