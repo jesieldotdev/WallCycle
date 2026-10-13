@@ -36,7 +36,23 @@ jobs:
         with:
           gradle-version: "8.9"
 
+      # Chave fixa (Secrets do repositório) para que cada APK novo instale por
+      # cima do anterior. Sem os secrets, o build usa uma chave temporária.
+      - name: Preparar chave de assinatura
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/wallcycle.keystore"
+            echo "WALLCYCLE_KEYSTORE=$RUNNER_TEMP/wallcycle.keystore" >> "$GITHUB_ENV"
+          else
+            echo "::warning::Secret KEYSTORE_BASE64 não configurado — o APK não vai atualizar por cima da versão instalada."
+          fi
+
       - name: Compilar APK
+        env:
+          WALLCYCLE_KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          WALLCYCLE_KEY_ALIAS: wallcycle
         run: gradle assembleDebug --no-daemon
 
       - name: Publicar APK

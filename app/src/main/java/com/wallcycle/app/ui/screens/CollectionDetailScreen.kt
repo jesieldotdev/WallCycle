@@ -109,14 +109,20 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
     var busy by remember { mutableStateOf(false) }
     var selection by remember(collectionId) { mutableStateOf(setOf<Uri>()) }
     var confirmRemove by remember { mutableStateOf(false) }
-    val selecting = selection.isNotEmpty()
+    var selectMode by remember(collectionId) { mutableStateOf(false) }
+    val selecting = selectMode || selection.isNotEmpty()
 
-    // Com itens selecionados, "voltar" só limpa a seleção.
-    BackHandler(enabled = selecting) { selection = emptySet() }
+    fun clearSelection() {
+        selection = emptySet()
+        selectMode = false
+    }
+
+    // No modo de seleção, "voltar" só sai da seleção.
+    BackHandler(enabled = selecting) { clearSelection() }
 
     fun removeNow(uris: Set<Uri>) {
         Repository.removeImages(collection.id, uris)
-        selection = emptySet()
+        clearSelection()
         Toast.makeText(
             context,
             if (uris.size == 1) "Wallpaper removido" else "${uris.size} wallpapers removidos",
@@ -158,11 +164,18 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
             windowInsets = WindowInsets(0),
             colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
             title = {
-                Text(if (selecting) "${selection.size} selecionada(s)" else collection.name, maxLines = 1)
+                Text(
+                    when {
+                        !selecting -> collection.name
+                        selection.isEmpty() -> "Toque para selecionar"
+                        else -> "${selection.size} selecionada(s)"
+                    },
+                    maxLines = 1,
+                )
             },
             navigationIcon = {
                 if (selecting) {
-                    IconButton(onClick = { selection = emptySet() }) {
+                    IconButton(onClick = { clearSelection() }) {
                         Icon(Icons.Rounded.Close, contentDescription = "Cancelar seleção")
                     }
                 } else {
@@ -176,7 +189,7 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
                     IconButton(onClick = { images?.let { selection = it.toSet() } }) {
                         Icon(Icons.Rounded.SelectAll, contentDescription = "Selecionar tudo")
                     }
-                    IconButton(onClick = { confirmRemove = true }) {
+                    IconButton(onClick = { confirmRemove = true }, enabled = selection.isNotEmpty()) {
                         Icon(Icons.Rounded.Delete, contentDescription = "Remover selecionadas")
                     }
                 } else {
@@ -194,6 +207,13 @@ fun CollectionDetailScreen(collectionId: String, onBack: () -> Unit) {
                         Icon(Icons.Rounded.MoreVert, contentDescription = "Mais")
                     }
                     DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                        if (!images.isNullOrEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("Remover wallpapers") },
+                                leadingIcon = { Icon(Icons.Rounded.Delete, null) },
+                                onClick = { menuOpen = false; selectMode = true },
+                            )
+                        }
                         if (collection.type == CollectionType.FOLDER && collection.excluded.isNotEmpty()) {
                             DropdownMenuItem(
                                 text = { Text("Restaurar removidas (${collection.excluded.size})") },

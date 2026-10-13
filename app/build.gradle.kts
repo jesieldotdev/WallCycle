@@ -12,11 +12,32 @@ android {
         applicationId = "com.wallcycle.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        // No GitHub Actions cada build ganha um número maior, então o Android
+        // aceita instalar por cima da versão anterior.
+        val build = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+        versionCode = build
+        versionName = "1.0.$build"
     }
 
+    // Assinatura fixa: o CI recebe a chave pelos Secrets do repositório
+    // (veja o README). Sem ela, cada build gerava uma chave de debug nova e o
+    // Android recusava a atualização com "App não instalado".
+    val keystorePath = System.getenv("WALLCYCLE_KEYSTORE")
+    val fixedKey = keystorePath != null && file(keystorePath).exists()
+    if (fixedKey) {
+        signingConfigs.create("wallcycle") {
+            storeFile = file(keystorePath!!)
+            storePassword = System.getenv("WALLCYCLE_KEYSTORE_PASSWORD")
+            keyAlias = System.getenv("WALLCYCLE_KEY_ALIAS")
+            keyPassword = System.getenv("WALLCYCLE_KEYSTORE_PASSWORD")
+        }
+    }
+    val signing = signingConfigs.getByName(if (fixedKey) "wallcycle" else "debug")
+
     buildTypes {
+        debug {
+            signingConfig = signing
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -24,9 +45,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Assina com a chave de debug para facilitar a instalação manual.
-            // Troque por sua própria chave antes de publicar.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signing
         }
     }
 

@@ -6,7 +6,7 @@ App Android (Kotlin + Jetpack Compose) que usa pastas de imagens como papel de p
 
 - **Visual**: translúcido — o papel de parede aparece desfocado atrás do app (Android 12+), cartões de vidro e barra de navegação flutuante.
 - **Coleções**: adicione uma pasta inteira (acompanha arquivos novos) ou escolha imagens soltas. Cartões em mosaico e destaque do wallpaper em uso com botão "Próximo".
-- **Remover wallpapers**: segure uma imagem para selecionar várias e remover; em pastas elas só ficam ocultas (dá para restaurar pelo menu).
+- **Remover wallpapers**: menu ⋮ → **Remover wallpapers** (ou segure uma imagem) para selecionar várias e remover; em pastas elas só ficam ocultas (dá para restaurar pelo menu).
 - **Gatilhos**
   - Troca automática a cada 15 min, 30 min, 1 h, 3 h, 6 h, 12 h ou 24 h.
   - Ordem aleatória (evita repetir as recentes) ou sequencial.
@@ -24,6 +24,17 @@ App Android (Kotlin + Jetpack Compose) que usa pastas de imagens como papel de p
 
 O build também roda sozinho quando o código em `app/` muda no `main`. O APK fica guardado 3 dias.
 
+### Atualizar sem desinstalar (configurar uma vez)
+
+Para que cada APK novo instale por cima do anterior, todos precisam ter a mesma assinatura.
+Em **Settings → Secrets and variables → Actions → New repository secret**, crie:
+
+- `KEYSTORE_BASE64`: o arquivo `.keystore` convertido em base64 (`base64 -w0 wallcycle.keystore`)
+- `KEYSTORE_PASSWORD`: a senha da chave (alias `wallcycle`)
+
+Depois de configurar, desinstale a versão antiga **uma única vez** e instale a nova; daí em diante
+as atualizações instalam por cima, mantendo suas coleções.
+
 ## Compilar no Android Studio
 
 Abra a pasta do projeto no Android Studio (Ladybug ou mais novo) e clique em **Run**.
@@ -38,6 +49,9 @@ e dois toques rápidos trocam a imagem. Ative em **Gatilhos → Ativar papel de 
 
 A landing page fica em `docs/index.html` e é publicada pelo GitHub Pages:
 https://jesieldotdev.github.io/WallCycle/
+
+Para ativar (uma vez): **Settings → Pages → Build and deployment → Source: Deploy from a branch**,
+branch **main**, pasta **/docs** → **Save**. Em ~1 min o site entra no ar.
 
 O botão "Baixar" aponta para o APK publicado automaticamente em
 [Releases](https://github.com/jesieldotdev/WallCycle/releases/latest) a cada build do `main`.
