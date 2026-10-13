@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.wallcycle.app.data.Repository
 import com.wallcycle.app.data.WallTarget
@@ -86,7 +87,11 @@ fun SettingsScreen() {
         }
 
         SectionCard("Sobre", Icons.Rounded.Info) {
-            Hint("WallCycle 1.0 · Troca automática de papel de parede a partir das suas pastas.")
+            val context = LocalContext.current
+            val version = runCatching {
+                context.packageManager.getPackageInfo(context.packageName, 0).versionName
+            }.getOrNull() ?: "?"
+            Hint("WallCycle $version · Troca automática de papel de parede a partir das suas pastas.")
         }
     }
 }

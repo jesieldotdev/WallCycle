@@ -1,11 +1,13 @@
 package com.wallcycle.app.ui.theme
 
 import android.os.Build
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -57,5 +59,9 @@ fun WallCycleTheme(dynamicColor: Boolean, content: @Composable () -> Unit) {
     } else {
         GlassPalette.Accent
     }
-    MaterialTheme(colorScheme = glassScheme(accent), typography = AppTypography, content = content)
+    MaterialTheme(colorScheme = glassScheme(accent), typography = AppTypography) {
+        // O app não fica dentro de uma Surface (o fundo é o wallpaper), então sem isto
+        // todo Text sem cor explícita sairia preto sobre o fundo escuro.
+        CompositionLocalProvider(LocalContentColor provides GlassPalette.Text, content = content)
+    }
 }
